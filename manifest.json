@@ -1,0 +1,20 @@
+{
+  "manifest_version": 2,
+
+  "name": "Sextant",
+  "description": "A tool for navigating the high sees of The Pirate Bay",
+  "version": "1.0",
+
+  "permissions": [
+    "http://www.imdb.com/"
+  ],
+  "web_accessible_resources": [
+    "img/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["http://thepiratebay.se/*"],
+      "js": ["jquery.min.js", "piratebay.js"]
+    }
+  ]
+}
