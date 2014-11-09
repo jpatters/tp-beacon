@@ -1,3 +1,4 @@
+var page = $('<div />');
 /*!
  * hoverIntent r7 // 2013.03.11 // jQuery 1.9.1+
  * http://cherne.net/brian/resources/jquery.hoverIntent.html
@@ -23,7 +24,6 @@ var showSextant = function(e) {
   var target = $(e.currentTarget).attr('href');
   var x = $(this).offset().left;
   var y = $(this).offset().top;
-  var page = $('<div />');
 
   page.load(target, function() {
     match = page[0].innerHTML.match(/imdb\.com\/(.*?)\"/i)
@@ -52,14 +52,19 @@ var showSextant = function(e) {
         });
       }
       page.load('http://www.imdb.com/' + match[1], function() {
-        page = page[0].innerHTML;
+        page = $(page[0].innerHTML);
 
-        $('#sextantTitle').text(findAttribute(page, 'name'));
-        $('#sextantRelease').text(findAttribute(page, 'release'));
-        $('#sextantDescription').text(findAttribute(page, 'description'));
-        $('#sextantRating').text(findAttribute(page, 'rating') + '/10');
-        $('#sextantRatingCount').text(findAttribute(page, 'ratingCount'));
-        $('#sextantLength').text(findAttribute(page, 'length'));
+        $('#sextantTitle').text(findAttribute('name'));
+        $('#sextantRelease').text(findAttribute('release'));
+        $('#sextantDescription').text(findAttribute('description'));
+        $('#sextantRating').text(findAttribute('rating'));
+        $('#sextantRatingCount').text(findAttribute('ratingCount'));
+        $('#sextantLength').text(findAttribute('length'));
+        $('#sextantDirector').text(findAttribute('director'));
+
+        $('#sextantSpinner').hide();
+        $('#sextantContent').show();
+        page = $('<div />');
       });
     }
   });
@@ -68,51 +73,86 @@ var showSextant = function(e) {
 var hideSextant = function() {
   var isHovered = $('#sextant:hover').length;
   if (!isHovered) {
-    $('#sextant').fadeOut(300);
+    $('#sextant').fadeOut(300, function() {
+      $('#sextantContent').hide();
+      $('#sextantSpinner').show();
+    });
   } else {
     $('#sextant').hover(
     function(){
 
     },
     function(){
-      $('#sextant').fadeOut(300);
+      $('#sextant').fadeOut(300, function() {
+        $('#sextantContent').hide();
+        $('#sextantSpinner').show();
+      });
     });
   }
 };
 
-var findAttribute = function(page, attribute) {
-  var regex, match;
+var findAttribute = function(attribute) {
+  var ele, match;
   switch(attribute) {
     case 'name':
-      regex = /itemprop=\"name\".*?>(.*?)</;
+      ele = page.find('h1.header span[itemprop="name"]');
+      if(ele.length > 0) {
+        return ele.text();
+      }
       break;
     case 'length':
-      regex = /itemprop=\"duration\".*?>(.*?)</;
+      ele = page.find('div.infobar time[itemprop="duration"]');
+      if(ele.length > 0) {
+        return ele.text();
+      }
       break
     case 'release':
-      regex = /itemprop=\"datePublished\".*?content=\"(.*?)\"/;
+      ele = page.find('meta[itemprop="datePublished"]');
+      if(ele.length > 0) {
+        return ele.attr('content');
+      }
       break;
     case 'genre':
-      regex = /itemprop=\"genre\".*?>(.*?)</;
+      ele = page.find('span[itemprop="genre"]');
+      if(ele.length > 0) {
+        tmp = Array();
+        ele.each(function(i, e) {
+          tmp.push(e.text());
+        });
+
+        return tmp.join('|');
+      }
       break;
     case 'description':
-      regex = /itemprop=\"description\".*?>[\s\S](.*?)[\s\S]</;
+      ele = page.find('p[itemprop="description"]');
+      if(ele.length > 0) {
+        return ele.text();
+      }
       break;
     case 'rating':
-      regex = /itemprop=\"ratingValue\".*?>(.*?)</;
+      ele = page.find('span[itemprop="ratingValue"]');
+      if(ele.length > 0) {
+        return ele.text() + '/10';
+      }
       break;
     case 'ratingCount':
-      regex = /itemprop=\"ratingCount\".*?>(.*?)</;
+      ele = page.find('span[itemprop="ratingCount"]');
+      if(ele.length > 0) {
+        return ele.text();
+      }
       break;
+    case 'director':
+      ele = page.find('div[itemprop="director"] span[itemprop="name"]');
+      if(ele.length > 0) {
+        return ele.text();
+      }
+      break;
+    // case 'media':
+    //   regex = //;
+    //   break;
   }
 
-  match = page.match(regex);
-
-  if(match !== null) {
-    return match[1];
-  } else {
-    return '';
-  }
+  return '';
 };
 
 $(".detLink").hoverIntent({
@@ -122,23 +162,25 @@ $(".detLink").hoverIntent({
 });
 
 function setup() {
-  $('body').append($('<div id="sextant" style="display: none;position:absolute;min-height:250px;padding:20px;background:white;border:1px solid #eee;-webkit-border-radius:10px;-moz-border-radius:10px;border-radius:10px;-webkit-box-shadow:0 0 10px rgba(0,0,0,0.69);-moz-box-shadow:0 0 10px rgba(0,0,0,0.69);box-shadow:0 0 10px rgba(0,0,0,0.69);z-index:100;left:50px;">' +
-      '<div style="float: left;max-width: 250px;margin-right: 20px; text-align: left;">' +
-        '<h3 id="sextantTitle" style="text-transform: uppercase;margin-bottom: 0;margin-top: 0;">Ted</h3>' +
-        '<p id="sextantRelease" style="font-size: 80%;color: #888;">December 2012</p>' +
-        '<p id="sextantDescription">As the result of a childhood wish, John Bennett\'s teddy bear, Ted, came to life and has been by John\'s side ever since - a friendship that\'s tested when Lori, John\'s girlfriend of four years, wants more from their relationship.</p>' +
-        '<hr style="color: #eee;background-color: #eee;height: 2px;border: none;" />' +
-        '<p><strong>IMDb Rating:</strong> <span id="sextantRating">7.1/10</span> <span class="sextant-meta-text">from <span id="sextantRatingCount">218,349</span> users</span></p>' +
-        '<hr style="color: #eee;background-color: #eee;height: 2px;border: none;" />' +
-        '<p><strong>Director:</strong> Quinton Teritino</p>' +
-        '<p><strong>Length:</strong> <span id="sextantLength">165 minutes</span></p>' +
-      '</div>' +
-      '<div style="float: left;width: 445px;">' +
-        '<a href="#" class="sextantClose" style=" border-bottom: none;display:block;float:right;right:0;margin-top:-12px;margin-right:-12px;width:15px;height:15px;margin-bottom:10px;background:transparent url(' + chrome.extension.getURL('img/arrows.png') +') no-repeat right top;"></a>' +
-        '<iframe width="444" height="250" src="http://www.youtube-nocookie.com/embed/9fbo_pQvU7M?rel=0" frameborder="0" allowfullscreen></iframe>' +
-        '<a href="http://hackcah.com" class="builtby" style="float: right;color: #444; border-bottom: none;">Built by hackcah.com</a>' +
+  $('body').append($('<div id="sextant" style="display: none;position:absolute;min-height:250px;padding:20px;background:white;border:1px solid #eee;-webkit-border-radius:10px;-moz-border-radius:10px;border-radius:10px;-webkit-box-shadow:0 0 10px rgba(0,0,0,0.69);-moz-box-shadow:0 0 10px rgba(0,0,0,0.69);box-shadow:0 0 10px rgba(0,0,0,0.69);z-index:100;left:50px;width:715px;">' +
+      '<div id="sextantContent" style="display:none;">' +
+        '<div style="float: left;max-width: 250px;margin-right: 20px; text-align: left;">' +
+          '<h3 id="sextantTitle" style="text-transform: uppercase;margin-bottom: 0;margin-top: 0;"></h3>' +
+          '<p id="sextantRelease" style="font-size: 80%;color: #888;"></p>' +
+          '<p id="sextantDescription"></p>' +
+          '<hr style="color: #eee;background-color: #eee;height: 2px;border: none;" />' +
+          '<p><strong>IMDb Rating:</strong> <span id="sextantRating"></span> <span class="sextant-meta-text">from <span id="sextantRatingCount"></span> users</span></p>' +
+          '<hr style="color: #eee;background-color: #eee;height: 2px;border: none;" />' +
+          '<p><strong>Director:</strong> <span id="sextantDirector"></span></p>' +
+          '<p><strong>Length:</strong> <span id="sextantLength"></span></p>' +
+        '</div>' +
+        '<div style="float: left;width: 445px;">' +
+          '<a href="#" class="sextantClose" style=" border-bottom: none;display:block;float:right;right:0;margin-top:-12px;margin-right:-12px;width:15px;height:15px;margin-bottom:10px;background:transparent url(' + chrome.extension.getURL('img/arrows.png') +') no-repeat right top;"></a>' +
+          '<div id="sextantMedia" style="width:444px;height:250px;"></div>' +
+        '</div>' +
       '</div>' +
       '<div class="sextant-arrow" style="width:45px;height:30px;background:transparent url(' + chrome.extension.getURL('img/arrows.png') +') no-repeat left top;bottom:-25px;position:absolute;left:20%;margin-left:-30px;"></div>' +
+      '<div style="margin-top:90px;" id="sextantSpinner"><img src="' + chrome.extension.getURL('img/spinner.gif') + '" /></div>' +
     '</div>'));
 }
 

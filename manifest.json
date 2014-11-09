@@ -6,7 +6,8 @@
   "version": "1.0",
 
   "permissions": [
-    "http://www.imdb.com/"
+    "http://www.imdb.com/",
+    "http://ia.media-imdb.com/"
   ],
   "web_accessible_resources": [
     "img/*"
