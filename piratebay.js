@@ -54,14 +54,15 @@ var showSextant = function(e) {
           "bottom": "-25px"
         });
       }
-      console.log('starting api request');
-      $.getJSON('http://www.imdbapi.com/?i=' + encodeURIComponent(match[1]), function(response) {
+
+      $.getJSON('http://www.imdbapi.com/?tomatoes=true&i=' + encodeURIComponent(match[1]), function(response) {
         getTrailer(response.Title);
         $('#sextantTitle').text(response.Title);
         $('#sextantRelease').text(response.Released);
         $('#sextantDescription').text(response.Plot);
         $('#sextantRating').text(response.imdbRating + '/10');
         $('#sextantRatingCount').text(response.imdbVotes);
+        $('#sextantRottenTomatoes').text();
         $('#sextantLength').text(response.Runtime);
         $('#sextantDirector').text(response.Director);
 
@@ -116,6 +117,7 @@ function setup() {
           '<p id="sextantDescription"></p>' +
           '<hr style="color: #eee;background-color: #eee;height: 2px;border: none;" />' +
           '<p><strong>IMDb Rating:</strong> <span id="sextantRating"></span> <span class="sextant-meta-text">from <span id="sextantRatingCount"></span> users</span></p>' +
+          // '<p><strong>Rotten Tomatoes:</strong> <span id="sextantRottenTomatoes"></span></p>' +
           '<hr style="color: #eee;background-color: #eee;height: 2px;border: none;" />' +
           '<p><strong>Director:</strong> <span id="sextantDirector"></span></p>' +
           '<p><strong>Length:</strong> <span id="sextantLength"></span></p>' +
