@@ -23,6 +23,7 @@ $(".sextantClose").click(function () {
 var showSextant = function(e) {
   var target = $(e.currentTarget).attr('href');
   var x = $(this).offset().left;
+  var reference = $(this).offset().top - $(document).scrollTop();
   var y = $(this).offset().top;
   var name;
 
@@ -38,7 +39,7 @@ var showSextant = function(e) {
 
       x = x - 100;
 
-      if (sextantHeight > y ) {
+      if (sextantHeight > reference ) {
         y = y + 40;
         $("#sextant").css("left", x).css("top", y);
         $(".sextant-arrow").css({
