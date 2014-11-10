@@ -6,8 +6,8 @@
   "version": "1.0",
 
   "permissions": [
-    "http://www.imdb.com/",
-    "http://ia.media-imdb.com/"
+    "http://www.imdbapi.com/",
+    "http://trailersapi.com/"
   ],
   "web_accessible_resources": [
     "img/*"

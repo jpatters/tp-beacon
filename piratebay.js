@@ -24,10 +24,13 @@ var showSextant = function(e) {
   var target = $(e.currentTarget).attr('href');
   var x = $(this).offset().left;
   var y = $(this).offset().top;
+  var name;
 
   page.load(target, function() {
-    match = page[0].innerHTML.match(/imdb\.com\/(.*?)\"/i)
+    match = page[0].innerHTML.match(/imdb\.com\/title\/(.*?)\/\"/i);
     if(match !== null && match.length) {
+      $('#sextantSpinner').show();
+      $('#sextantContent').hide();
       $("#sextant").fadeIn(300);
 
       // sextant height plus padding and arrow
@@ -51,20 +54,18 @@ var showSextant = function(e) {
           "bottom": "-25px"
         });
       }
-      page.load('http://www.imdb.com/' + match[1], function() {
-        page = $(page[0].innerHTML);
+      console.log('starting api request');
+      $.getJSON('http://www.imdbapi.com/?i=' + encodeURIComponent(match[1]), function(response) {
+        getTrailer(response.Title);
+        $('#sextantTitle').text(response.Title);
+        $('#sextantRelease').text(response.Released);
+        $('#sextantDescription').text(response.Plot);
+        $('#sextantRating').text(response.imdbRating + '/10');
+        $('#sextantRatingCount').text(response.imdbVotes);
+        $('#sextantLength').text(response.Runtime);
+        $('#sextantDirector').text(response.Director);
 
-        $('#sextantTitle').text(findAttribute('name'));
-        $('#sextantRelease').text(findAttribute('release'));
-        $('#sextantDescription').text(findAttribute('description'));
-        $('#sextantRating').text(findAttribute('rating'));
-        $('#sextantRatingCount').text(findAttribute('ratingCount'));
-        $('#sextantLength').text(findAttribute('length'));
-        $('#sextantDirector').text(findAttribute('director'));
-
-        $('#sextantSpinner').hide();
         $('#sextantContent').show();
-        page = $('<div />');
       });
     }
   });
@@ -74,8 +75,7 @@ var hideSextant = function() {
   var isHovered = $('#sextant:hover').length;
   if (!isHovered) {
     $('#sextant').fadeOut(300, function() {
-      $('#sextantContent').hide();
-      $('#sextantSpinner').show();
+      $('#sextantMedia').empty()
     });
   } else {
     $('#sextant').hover(
@@ -84,75 +84,21 @@ var hideSextant = function() {
     },
     function(){
       $('#sextant').fadeOut(300, function() {
-        $('#sextantContent').hide();
-        $('#sextantSpinner').show();
+        $('#sextantMedia').empty()
       });
     });
   }
 };
 
-var findAttribute = function(attribute) {
-  var ele, match;
-  switch(attribute) {
-    case 'name':
-      ele = page.find('h1.header span[itemprop="name"]');
-      if(ele.length > 0) {
-        return ele.text();
-      }
-      break;
-    case 'length':
-      ele = page.find('div.infobar time[itemprop="duration"]');
-      if(ele.length > 0) {
-        return ele.text();
-      }
-      break
-    case 'release':
-      ele = page.find('meta[itemprop="datePublished"]');
-      if(ele.length > 0) {
-        return ele.attr('content');
-      }
-      break;
-    case 'genre':
-      ele = page.find('span[itemprop="genre"]');
-      if(ele.length > 0) {
-        tmp = Array();
-        ele.each(function(i, e) {
-          tmp.push(e.text());
-        });
-
-        return tmp.join('|');
-      }
-      break;
-    case 'description':
-      ele = page.find('p[itemprop="description"]');
-      if(ele.length > 0) {
-        return ele.text();
-      }
-      break;
-    case 'rating':
-      ele = page.find('span[itemprop="ratingValue"]');
-      if(ele.length > 0) {
-        return ele.text() + '/10';
-      }
-      break;
-    case 'ratingCount':
-      ele = page.find('span[itemprop="ratingCount"]');
-      if(ele.length > 0) {
-        return ele.text();
-      }
-      break;
-    case 'director':
-      ele = page.find('div[itemprop="director"] span[itemprop="name"]');
-      if(ele.length > 0) {
-        return ele.text();
-      }
-      break;
-    // case 'media':
-    //   regex = //;
-    //   break;
-  }
-
-  return '';
+var getTrailer = function(name) {
+  $.getJSON('http://trailersapi.com/trailers.json?movie=' + encodeURIComponent(name) + '&limit=1&width=444', function (response) {
+    if(response.length > 0) {
+      $('#sextantMedia').html(response[0].code);
+    } else {
+      $('#sextantMedia').html('<h2>Trailer not found</h2>')
+    }
+    $('#sextantSpinner').hide();
+  });
 };
 
 $(".detLink").hoverIntent({
@@ -180,7 +126,7 @@ function setup() {
         '</div>' +
       '</div>' +
       '<div class="sextant-arrow" style="width:45px;height:30px;background:transparent url(' + chrome.extension.getURL('img/arrows.png') +') no-repeat left top;bottom:-25px;position:absolute;left:20%;margin-left:-30px;"></div>' +
-      '<div style="margin-top:90px;" id="sextantSpinner"><img src="' + chrome.extension.getURL('img/spinner.gif') + '" /></div>' +
+      '<div style="position:absolute;top:115px;left:345px;" id="sextantSpinner"><img src="' + chrome.extension.getURL('img/spinner.gif') + '" /></div>' +
     '</div>'));
 }
 
