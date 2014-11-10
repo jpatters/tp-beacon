@@ -96,22 +96,27 @@ var getTrailer = function(name, imdb_id) {
     var match = null;
     if(response.length > 0) {
       $.each(response, function (i, clip) {
-        if(clip.title.toUpperCase().indexOf(name.toUpperCase()) != -1) {
+        if(clip.title.toUpperCase().indexOf(name.toUpperCase()) !== -1) {
           match = clip;
           return false
         }
       });
+
       if(match !== null) {
         $('#sextantMedia').html(match.code);
+        $('#sextantSpinner').hide();
       } else {
-        console.log('sending request');
-        $.getJSON('http://img.omdbapi.com/?apikey=4883a6a1&h=250&i=' + encodeURIComponent(imdb_id), function (response) {
-          console.log(response);
-        });
+        getPoster(name, imdb_id);
       }
     } else {
-      $('#sextantMedia').html('<h2>Trailer not found</h2>');
+      getPoster(name, imdb_id);
     }
+  });
+};
+
+var getPoster = function (name, imdb_id) {
+  $.getJSON('http://img.omdbapi.com/?apikey=4883a6a1&h=250&i=' + encodeURIComponent(imdb_id), function (response) {
+    console.log(response);
     $('#sextantSpinner').hide();
   });
 };
@@ -123,7 +128,7 @@ $(".detLink").hoverIntent({
 });
 
 function setup() {
-  $('body').append($('<div id="sextant" style="display: none;position:absolute;min-height:250px;padding:20px;background:white;border:1px solid #eee;-webkit-border-radius:10px;-moz-border-radius:10px;border-radius:10px;-webkit-box-shadow:0 0 10px rgba(0,0,0,0.69);-moz-box-shadow:0 0 10px rgba(0,0,0,0.69);box-shadow:0 0 10px rgba(0,0,0,0.69);z-index:100;left:50px;width:715px;">' +
+  $('body').append($('<div id="sextant" style="display: none;position:absolute;min-height:260px;padding:20px;background:white;border:1px solid #eee;-webkit-border-radius:10px;-moz-border-radius:10px;border-radius:10px;-webkit-box-shadow:0 0 10px rgba(0,0,0,0.69);-moz-box-shadow:0 0 10px rgba(0,0,0,0.69);box-shadow:0 0 10px rgba(0,0,0,0.69);z-index:100;left:50px;width:715px;">' +
       '<div id="sextantContent" style="display:none;">' +
         '<div style="float: left;max-width: 250px;margin-right: 20px; text-align: left;">' +
           '<h3 id="sextantTitle" style="text-transform: uppercase;margin-bottom: 0;margin-top: 0;"></h3>' +
