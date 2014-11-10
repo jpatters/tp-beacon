@@ -56,7 +56,7 @@ var showSextant = function(e) {
       }
 
       $.getJSON('http://www.imdbapi.com/?tomatoes=true&i=' + encodeURIComponent(match[1]), function(response) {
-        getTrailer(response.Title);
+        getTrailer(response.Title, match[1]);
         $('#sextantTitle').text(response.Title);
         $('#sextantRelease').text(response.Released);
         $('#sextantDescription').text(response.Plot);
@@ -91,12 +91,26 @@ var hideSextant = function() {
   }
 };
 
-var getTrailer = function(name) {
-  $.getJSON('http://trailersapi.com/trailers.json?movie=' + encodeURIComponent(name) + '&limit=1&width=444', function (response) {
+var getTrailer = function(name, imdb_id) {
+  $.getJSON('http://trailersapi.com/trailers.json?movie=' + encodeURIComponent(name) + '&limit=10&width=444', function (response) {
+    var match = null;
     if(response.length > 0) {
-      $('#sextantMedia').html(response[0].code);
+      $.each(response, function (i, clip) {
+        if(clip.title.toUpperCase().indexOf(name.toUpperCase()) != -1) {
+          match = clip;
+          return false
+        }
+      });
+      if(match !== null) {
+        $('#sextantMedia').html(match.code);
+      } else {
+        console.log('sending request');
+        $.getJSON('http://img.omdbapi.com/?apikey=4883a6a1&h=250&i=' + encodeURIComponent(imdb_id), function (response) {
+          console.log(response);
+        });
+      }
     } else {
-      $('#sextantMedia').html('<h2>Trailer not found</h2>')
+      $('#sextantMedia').html('<h2>Trailer not found</h2>');
     }
     $('#sextantSpinner').hide();
   });
