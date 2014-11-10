@@ -116,10 +116,8 @@ var getTrailer = function(name, imdb_id) {
 };
 
 var getPoster = function (name, imdb_id) {
-  $.getJSON('http://img.omdbapi.com/?apikey=4883a6a1&h=250&i=' + encodeURIComponent(imdb_id), function (response) {
-    console.log(response);
-    $('#sextantSpinner').hide();
-  });
+  $('#sextantMedia').html('<img src="http://img.omdbapi.com/?apikey=4883a6a1&h=250&i=' + encodeURIComponent(imdb_id) + '" />');
+  $('#sextantSpinner').hide();
 };
 
 $(".detLink").hoverIntent({
