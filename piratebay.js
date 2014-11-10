@@ -21,10 +21,11 @@ $(".sextantClose").click(function () {
 });
 
 var showSextant = function(e) {
-  var target = $(e.currentTarget).attr('href');
-  var x = $(this).offset().left;
-  var reference = $(this).offset().top - $(document).scrollTop();
-  var y = $(this).offset().top;
+  var ele = $(e.currentTarget).find('a.detLink');
+  var target = ele.attr('href');
+  var x = ele.offset().left;
+  var reference = ele.offset().top - $(document).scrollTop();
+  var y = ele.offset().top;
   var name;
 
   page.load(target, function() {
@@ -39,7 +40,7 @@ var showSextant = function(e) {
 
       x = x - 100;
 
-      if (sextantHeight > reference ) {
+      if (sextantHeight > reference) {
         y = y + 40;
         $("#sextant").css("left", x).css("top", y);
         $(".sextant-arrow").css({
@@ -116,17 +117,18 @@ var getTrailer = function(name, imdb_id) {
 };
 
 var getPoster = function (name, imdb_id) {
-  $('#sextantMedia').html('<img src="http://img.omdbapi.com/?apikey=4883a6a1&h=250&i=' + encodeURIComponent(imdb_id) + '" />');
+  $('#sextantMedia').html('<img height="250" src="http://img.omdbapi.com/?apikey=4883a6a1&h=250&i=' + encodeURIComponent(imdb_id) + '" />');
   $('#sextantSpinner').hide();
 };
 
-$(".detLink").hoverIntent({
+$(".detLink").parents('td').hoverIntent({
   over: showSextant, // function = onMouseOver callback (REQUIRED)
   timeout: 300, // number = milliseconds delay before onMouseOut
   out: hideSextant // function = onMouseOut callback (REQUIRED)
 });
 
 function setup() {
+  $('.detLink').removeAttr('title');
   $('body').append($('<div id="sextant" style="display: none;position:absolute;min-height:260px;padding:20px;background:white;border:1px solid #eee;-webkit-border-radius:10px;-moz-border-radius:10px;border-radius:10px;-webkit-box-shadow:0 0 10px rgba(0,0,0,0.69);-moz-box-shadow:0 0 10px rgba(0,0,0,0.69);box-shadow:0 0 10px rgba(0,0,0,0.69);z-index:100;left:50px;width:715px;">' +
       '<div id="sextantContent" style="display:none;">' +
         '<div style="float: left;max-width: 250px;margin-right: 20px; text-align: left;">' +
