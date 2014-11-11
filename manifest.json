@@ -3,7 +3,7 @@
 
   "name": "The Pirate Beacon",
   "description": "A tool for navigating the high sees of The Pirate Bay",
-  "version": "1.0",
+  "version": "1.1",
 
   "icons": {
     "16": "beacon-16.png",
@@ -21,7 +21,7 @@
   ],
   "content_scripts": [
     {
-      "matches": ["http://thepiratebay.se/*"],
+      "matches": ["*://thepiratebay.se/*", "*://194.71.107.80/*"],
       "js": ["jquery.min.js", "piratebay.js"]
     }
   ]

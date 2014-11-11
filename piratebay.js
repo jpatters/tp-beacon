@@ -26,7 +26,7 @@ var showSextant = function(e) {
   var x = ele.offset().left;
   var reference = ele.offset().top - $(document).scrollTop();
   var y = ele.offset().top;
-  var name;
+  var name, match;
 
   page.load(target, function() {
     match = page[0].innerHTML.match(/imdb\.com\/title\/(.*?)\/\"/i);
@@ -62,11 +62,23 @@ var showSextant = function(e) {
         $('#sextantTitle').text(response.Title);
         $('#sextantRelease').text(response.Released);
         $('#sextantDescription').text(response.Plot);
-        $('#sextantRating').text(response.imdbRating + '/10');
-        $('#sextantRatingCount').text(response.imdbVotes);
-        $('#sextantRottenTomatoes').text();
+        if(response.imdbRating != 'N/A') {
+          $('#sextantImdbRating').text(response.imdbRating + '/10 (' + response.imdbVotes + ' reviews)');
+        } else {
+          $('#sextantImdbRating').text('N/A');
+        }
         $('#sextantLength').text(response.Runtime);
         $('#sextantDirector').text(response.Director);
+        if(response.tomatoMeter != 'N/A') {
+          $('#sextantRottenTomatoesCritics').text(response.tomatoMeter + '% (' + response.tomatoReviews + ' reviews)');
+        } else {
+          $('#sextantRottenTomatoesCritics').text('N/A');
+        }
+        if(response.tomatoUserMeter != 'N/A') {
+          $('#sextantRottenTomatoesAudience').text(response.tomatoUserMeter + '% (' + response.tomatoUserReviews + ' reviews)');
+        } else {
+          $('#sextantRottenTomatoesAudience').text('N/A');
+        }
 
         $('#sextantContent').show();
       });
@@ -129,22 +141,23 @@ $(".detLink").parents('td').hoverIntent({
 
 function setup() {
   $('.detLink').removeAttr('title');
-  $('body').append($('<div id="sextant" style="display: none;position:absolute;min-height:260px;padding:20px;background:white;border:1px solid #eee;-webkit-border-radius:10px;-moz-border-radius:10px;border-radius:10px;-webkit-box-shadow:0 0 10px rgba(0,0,0,0.69);-moz-box-shadow:0 0 10px rgba(0,0,0,0.69);box-shadow:0 0 10px rgba(0,0,0,0.69);z-index:100;left:50px;width:715px;">' +
+  $('body').append($('<div id="sextant" style="display: none;position:absolute;min-height:260px;padding:20px;background:white;border:1px solid #eee;-webkit-border-radius:10px;-moz-border-radius:10px;border-radius:10px;-webkit-box-shadow:0 0 10px rgba(0,0,0,0.69);-moz-box-shadow:0 0 10px rgba(0,0,0,0.69);box-shadow:0 0 10px rgba(0,0,0,0.69);z-index:100;left:50px;min-width:715px;">' +
       '<div id="sextantContent" style="display:none;">' +
         '<div style="float: left;max-width: 250px;margin-right: 20px; text-align: left;">' +
           '<h3 id="sextantTitle" style="text-transform: uppercase;margin-bottom: 0;margin-top: 0;"></h3>' +
           '<p id="sextantRelease" style="font-size: 80%;color: #888;"></p>' +
           '<p id="sextantDescription"></p>' +
           '<hr style="color: #eee;background-color: #eee;height: 2px;border: none;" />' +
-          '<p><strong>IMDb Rating:</strong> <span id="sextantRating"></span> <span class="sextant-meta-text">from <span id="sextantRatingCount"></span> users</span></p>' +
-          // '<p><strong>Rotten Tomatoes:</strong> <span id="sextantRottenTomatoes"></span></p>' +
+          '<p><strong>IMDb Rating:</strong> <span id="sextantImdbRating"></span></p>' +
+          '<p><strong>RT Critics:</strong> <span id="sextantRottenTomatoesCritics"></span></p>' +
+          '<p><strong>RT Audience:</strong> <span id="sextantRottenTomatoesAudience"></span></p>' +
           '<hr style="color: #eee;background-color: #eee;height: 2px;border: none;" />' +
           '<p><strong>Director:</strong> <span id="sextantDirector"></span></p>' +
           '<p><strong>Length:</strong> <span id="sextantLength"></span></p>' +
         '</div>' +
-        '<div style="float: left;width: 445px;">' +
+        '<div style="float: left;min-width: 445px;">' +
           '<a href="#" class="sextantClose" style=" border-bottom: none;display:block;float:right;right:0;margin-top:-12px;margin-right:-12px;width:15px;height:15px;margin-bottom:10px;background:transparent url(' + chrome.extension.getURL('img/arrows.png') +') no-repeat right top;"></a>' +
-          '<div id="sextantMedia" style="width:444px;height:250px;"></div>' +
+          '<div id="sextantMedia" style="min-width:444px;height:250px;"></div>' +
         '</div>' +
       '</div>' +
       '<div class="sextant-arrow" style="width:45px;height:30px;background:transparent url(' + chrome.extension.getURL('img/arrows.png') +') no-repeat left top;bottom:-25px;position:absolute;left:20%;margin-left:-30px;"></div>' +
