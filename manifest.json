@@ -1,9 +1,15 @@
 {
   "manifest_version": 2,
 
-  "name": "Sextant",
+  "name": "The Pirate Beacon",
   "description": "A tool for navigating the high sees of The Pirate Bay",
   "version": "1.0",
+
+  "icons": {
+    "16": "beacon-16.png",
+    "48": "beacon-48.png",
+    "128": "beacon-128.png"
+  },
 
   "permissions": [
     "http://www.imdbapi.com/",
