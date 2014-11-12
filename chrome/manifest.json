@@ -3,7 +3,7 @@
 
   "name": "The Pirate Beacon",
   "description": "A tool for navigating the high sees of The Pirate Bay",
-  "version": "1.1",
+  "version": "1.2",
 
   "icons": {
     "16": "beacon-16.png",

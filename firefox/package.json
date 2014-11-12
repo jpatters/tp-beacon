@@ -1,0 +1,11 @@
+{
+  "name": "tp-beacon",
+  "title": "The Pirate Beacon",
+  "id": "jid1-hwaF7Hl4E7vj2w",
+  "description": "A tool for navigating the high sees of The Pirate Bay",
+  "author": "Jordan Patterson",
+  "license": "MIT",
+  "version": "1.2",
+  "icon": "data/icons/beacon-48.png",
+  "icon64": "data/icons/beacon-64.png"
+}
