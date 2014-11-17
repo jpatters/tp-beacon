@@ -7,5 +7,8 @@
   "license": "MIT",
   "version": "1.4",
   "icon": "data/icons/beacon-48.png",
-  "icon64": "data/icons/beacon-64.png"
+  "icon64": "data/icons/beacon-64.png",
+  "permissions": {
+  	"private-browsing": true
+  }
 }
