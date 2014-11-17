@@ -171,6 +171,8 @@ var showSextant = function(e) {
         match = page.match(regex);
       }
 
+      console.log(match);
+
       if(match !== null && match.length && match[1] != '') {
         $('#sextantSpinner').show();
         $('#sextantContent').hide();
@@ -237,13 +239,6 @@ var showSextant = function(e) {
 
 var hideSextant = function() {
   var isHovered = $('#sextant:hover').length;
-  if(xhr1 !== null) {
-    xhr1.abort();
-  }
-
-  if(xhr2 !== null) {
-    xhr2.abort();
-  }
   if (!isHovered) {
     $('#sextant').fadeOut(300, function() {
       $('#sextantMedia').empty()
