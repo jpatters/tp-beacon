@@ -165,30 +165,37 @@ var showSextant = function(e) {
         });
       }
 
-      $.getJSON('http://www.omdbapi.com/?tomatoes=true&i=' + encodeURIComponent(match[1]), function(response) {
-        getTrailer(response.Title, match[1]);
-        $('#sextantTitle').text(response.Title);
-        $('#sextantRelease').text(response.Released);
-        $('#sextantDescription').text(response.Plot);
+      $.getJSON('https://api.jpatterson.me/beacon/movie/' + encodeURIComponent(match[1]), function(response) {
+        response = response.movie;
+        $('#sextantTitle').text(response.title);
+        $('#sextantRelease').text(response.released);
+        $('#sextantDescription').text(response.plot);
         if(response.imdbRating != 'N/A') {
-          $('#sextantImdbRating').text(response.imdbRating + '/10 (' + response.imdbVotes + ' reviews)');
+          $('#sextantImdbRating').text(response.imdb_rating + '/10 (' + response.imdb_votes + ' reviews)');
         } else {
           $('#sextantImdbRating').text('N/A');
         }
-        $('#sextantLength').text(response.Runtime);
-        $('#sextantDirector').text(response.Director);
-        if(response.tomatoMeter != 'N/A') {
-          $('#sextantRottenTomatoesCritics').text(response.tomatoMeter + '% (' + response.tomatoReviews + ' reviews)');
+        $('#sextantLength').text(response.runtime);
+        $('#sextantDirector').text(response.director);
+        if(response.tomato_meter != 'N/A') {
+          $('#sextantRottenTomatoesCritics').text(response.tomato_meter + '% (' + response.tomato_reviews + ' reviews)');
         } else {
           $('#sextantRottenTomatoesCritics').text('N/A');
         }
-        if(response.tomatoUserMeter != 'N/A') {
-          $('#sextantRottenTomatoesAudience').text(response.tomatoUserMeter + '% (' + response.tomatoUserReviews + ' reviews)');
+        if(response.tomato_user_meter != 'N/A') {
+          $('#sextantRottenTomatoesAudience').text(response.tomato_user_meter + '% (' + response.tomato_user_reviews + ' reviews)');
         } else {
           $('#sextantRottenTomatoesAudience').text('N/A');
         }
 
+        if(response.trailer !== null) {
+          $('#sextantMedia').html(response.trailer);
+        } else {
+          $('#sextantMedia').html('<img height="250" src="https://api.jpatterson.me/beacon/movie/poster/' + encodeURIComponent(response.id) + '" />');
+        }
+
         $('#sextantContent').show();
+        $('#sextantSpinner').hide();
       });
     }
   });
@@ -211,34 +218,6 @@ var hideSextant = function() {
       });
     });
   }
-};
-
-var getTrailer = function(name, imdb_id) {
-  $.getJSON('http://trailersapi.com/trailers.json?movie=' + encodeURIComponent(name) + '&limit=10&width=444', function (response) {
-    var match = null;
-    if(response.length > 0) {
-      $.each(response, function (i, clip) {
-        if(clip.title.toUpperCase().indexOf(name.toUpperCase()) !== -1) {
-          match = clip;
-          return false
-        }
-      });
-
-      if(match !== null) {
-        $('#sextantMedia').html(match.code);
-        $('#sextantSpinner').hide();
-      } else {
-        getPoster(name, imdb_id);
-      }
-    } else {
-      getPoster(name, imdb_id);
-    }
-  });
-};
-
-var getPoster = function (name, imdb_id) {
-  $('#sextantMedia').html('<img height="250" src="http://img.omdbapi.com/?apikey=4883a6a1&h=250&i=' + encodeURIComponent(imdb_id) + '" />');
-  $('#sextantSpinner').hide();
 };
 
 $(".detLink").parents('td').hoverIntent({
