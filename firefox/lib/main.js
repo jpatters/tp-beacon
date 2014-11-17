@@ -5,6 +5,7 @@ var self = require("sdk/self");
 
 pageMod.PageMod({
   include: [
+  	"*.kickass.to",
   	"*.thepiratebay.se",
 		"*.194.71.107.80",
 		"*.8la2.com",

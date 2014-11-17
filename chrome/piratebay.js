@@ -1,4 +1,22 @@
-var page = $('<div />');
+var linkTarget
+  , regex
+  , xAdjust
+  , xhr1 = null
+  , xhr2 = null
+  , isTPB;
+
+if(window.location.href.indexOf('kickass') !== -1) {
+  linkTarget = 'cellMainLink';
+  regex = /imdb\.com\\\/title\\\/(.*?)[\\\/\"]/i;
+  xAdjust = 200;
+  isTPB = false;
+} else {
+  linkTarget = 'detLink';
+  regex = /imdb\.com\/title\/(.*?)[\/\"]/i;
+  xAdjust = 0;
+  isTPB = true;
+}
+
 /*!
  * hoverIntent v1.8.1 // 2014.08.11 // jQuery v1.9.1+
  * http://cherne.net/brian/resources/jquery.hoverIntent.html
@@ -128,81 +146,104 @@ $(".sextantClose").click(function () {
 });
 
 var showSextant = function(e) {
-  var ele = $(e.currentTarget).find('a.detLink');
+  var ele = $(e.currentTarget).find('a.' + linkTarget);
   var target = ele.attr('href');
   var x = ele.offset().left;
   var reference = ele.offset().top - $(document).scrollTop();
   var y = ele.offset().top;
   var name, match;
 
-  page.load(target, function() {
-    match = page[0].innerHTML.match(/imdb\.com\/title\/(.*?)[\/\"]/i);
+  if(xhr1 !== null) {
+    xhr1.abort();
+  }
 
-    if(match !== null && match.length && match[1] != '') {
-      $('#sextantSpinner').show();
-      $('#sextantContent').hide();
-      $("#sextant").fadeIn(300);
+  if(xhr2 !== null) {
+    xhr2.abort();
+  }
 
-      // sextant height plus padding and arrow
-      var sextantHeight = $("#sextant").height() + 25 + 40;
-
-      x = x - 100;
-
-      if (sextantHeight > reference) {
-        y = y + 40;
-        $("#sextant").css("left", x).css("top", y);
-        $(".sextant-arrow").css({
-          "background-position": "-60px top",
-          "top": "-27px"
-        });
+  xhr1 = $.ajax({
+    url: target,
+    dataType: 'html',
+    success: function(page) {
+      if(isTPB) {
+        match = page.match(regex);
       } else {
-        y = y - sextantHeight;
-        $("#sextant").css("left", x).css("top", y);
-        $(".sextant-arrow").css({
-          "background-position": "left top",
-          "top": "auto",
-          "bottom": "-25px"
-        });
+        match = page.match(regex);
       }
 
-      $.getJSON('https://api.jpatterson.me/beacon/movie/' + encodeURIComponent(match[1]), function(response) {
-        response = response.movie;
-        $('#sextantTitle').text(response.title);
-        $('#sextantRelease').text(response.released);
-        $('#sextantDescription').text(response.plot);
-        if(response.imdbRating != 'N/A') {
-          $('#sextantImdbRating').text(response.imdb_rating + '/10 (' + response.imdb_votes + ' reviews)');
+      if(match !== null && match.length && match[1] != '') {
+        $('#sextantSpinner').show();
+        $('#sextantContent').hide();
+        $("#sextant").fadeIn(300);
+
+        // sextant height plus padding and arrow
+        var sextantHeight = $("#sextant").height() + 25 + 40;
+
+        x = x - 100 + xAdjust;
+
+        if (sextantHeight > reference) {
+          y = y + 40;
+          $("#sextant").css("left", x).css("top", y);
+          $(".sextant-arrow").css({
+            "background-position": "-60px top",
+            "top": "-27px"
+          });
         } else {
-          $('#sextantImdbRating').text('N/A');
-        }
-        $('#sextantLength').text(response.runtime);
-        $('#sextantDirector').text(response.director);
-        if(response.tomato_meter != 'N/A') {
-          $('#sextantRottenTomatoesCritics').text(response.tomato_meter + '% (' + response.tomato_reviews + ' reviews)');
-        } else {
-          $('#sextantRottenTomatoesCritics').text('N/A');
-        }
-        if(response.tomato_user_meter != 'N/A') {
-          $('#sextantRottenTomatoesAudience').text(response.tomato_user_meter + '% (' + response.tomato_user_reviews + ' reviews)');
-        } else {
-          $('#sextantRottenTomatoesAudience').text('N/A');
+          y = y - sextantHeight;
+          $("#sextant").css("left", x).css("top", y);
+          $(".sextant-arrow").css({
+            "background-position": "left top",
+            "top": "auto",
+            "bottom": "-25px"
+          });
         }
 
-        if(response.trailer !== null) {
-          $('#sextantMedia').html(response.trailer);
-        } else {
-          $('#sextantMedia').html('<img height="250" src="https://api.jpatterson.me/beacon/movie/poster/' + encodeURIComponent(response.id) + '" />');
-        }
+        xhr2 = $.getJSON('https://api.jpatterson.me/beacon/movie/' + encodeURIComponent(match[1]), function(response) {
+          response = response.movie;
+          $('#sextantTitle').text(response.title);
+          $('#sextantRelease').text(response.released);
+          $('#sextantDescription').text(response.plot);
+          if(response.imdbRating != 'N/A') {
+            $('#sextantImdbRating').text(response.imdb_rating + '/10 (' + response.imdb_votes + ' reviews)');
+          } else {
+            $('#sextantImdbRating').text('N/A');
+          }
+          $('#sextantLength').text(response.runtime);
+          $('#sextantDirector').text(response.director);
+          if(response.tomato_meter != 'N/A') {
+            $('#sextantRottenTomatoesCritics').text(response.tomato_meter + '% (' + response.tomato_reviews + ' reviews)');
+          } else {
+            $('#sextantRottenTomatoesCritics').text('N/A');
+          }
+          if(response.tomato_user_meter != 'N/A') {
+            $('#sextantRottenTomatoesAudience').text(response.tomato_user_meter + '% (' + response.tomato_user_reviews + ' reviews)');
+          } else {
+            $('#sextantRottenTomatoesAudience').text('N/A');
+          }
 
-        $('#sextantContent').show();
-        $('#sextantSpinner').hide();
-      });
+          if(response.trailer !== null) {
+            $('#sextantMedia').html(response.trailer);
+          } else {
+            $('#sextantMedia').html('<img height="250" src="https://api.jpatterson.me/beacon/movie/poster/' + encodeURIComponent(response.id) + '" />');
+          }
+
+          $('#sextantContent').show();
+          $('#sextantSpinner').hide();
+        });
+      }
     }
   });
 };
 
 var hideSextant = function() {
   var isHovered = $('#sextant:hover').length;
+  if(xhr1 !== null) {
+    xhr1.abort();
+  }
+
+  if(xhr2 !== null) {
+    xhr2.abort();
+  }
   if (!isHovered) {
     $('#sextant').fadeOut(300, function() {
       $('#sextantMedia').empty()
@@ -220,14 +261,14 @@ var hideSextant = function() {
   }
 };
 
-$(".detLink").parents('td').hoverIntent({
+$("." + linkTarget).parents('tr').hoverIntent({
   over: showSextant, // function = onMouseOver callback (REQUIRED)
   timeout: 300, // number = milliseconds delay before onMouseOut
   out: hideSextant // function = onMouseOut callback (REQUIRED)
 });
 
 function setup() {
-  $('.detLink').removeAttr('title');
+  $('.' + linkTarget).removeAttr('title');
   $('body').append($('<div id="sextant" style="display: none;position:absolute;min-height:260px;padding:20px;background:white;border:1px solid #eee;-webkit-border-radius:10px;-moz-border-radius:10px;border-radius:10px;-webkit-box-shadow:0 0 10px rgba(0,0,0,0.69);-moz-box-shadow:0 0 10px rgba(0,0,0,0.69);box-shadow:0 0 10px rgba(0,0,0,0.69);z-index:100;left:50px;min-width:715px;">' +
       '<div id="sextantContent" style="display:none;">' +
         '<div style="float: left;max-width: 250px;margin-right: 20px; text-align: left;">' +
@@ -243,8 +284,8 @@ function setup() {
           '<p><strong>Length:</strong> <span id="sextantLength"></span></p>' +
         '</div>' +
         '<div style="float: left;min-width: 445px;">' +
-          '<a href="#" class="sextantClose" style=" border-bottom: none;display:block;float:right;right:0;margin-top:-12px;margin-right:-12px;width:15px;height:15px;margin-bottom:10px;background:transparent url(' + chrome.extension.getURL('img/arrows.png') +') no-repeat right top;"></a>' +
-          '<div id="sextantMedia" style="min-width:444px;height:250px;"></div>' +
+          '<a href="#" class="sextantClose" style="border-bottom: none;display:none;float:right;right:0;margin-top:-12px;margin-right:-12px;width:15px;height:15px;margin-bottom:10px;background:transparent url(' + chrome.extension.getURL('img/arrows.png') +') no-repeat right top;"></a>' +
+          '<div id="sextantMedia" style="min-width:444px;height:250px;text-align:center;"></div>' +
         '</div>' +
       '</div>' +
       '<div class="sextant-arrow" style="width:45px;height:30px;background:transparent url(' + chrome.extension.getURL('img/arrows.png') +') no-repeat left top;bottom:-25px;position:absolute;left:20%;margin-left:-30px;"></div>' +
