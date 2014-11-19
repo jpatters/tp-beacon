@@ -1,5 +1,6 @@
 {
   "manifest_version": 2,
+  "minimum_chrome_version": "22.0.0.0",
 
   "name": "The Pirate Beacon",
   "description": "A tool for navigating the high sees of The Pirate Bay",
@@ -21,6 +22,8 @@
     {
       "matches": [
         "*://kickass.to/*",
+        "*://kickass.so/*",
+        "*://katproxy.com/*",
         "*://thepiratebay.se/*",
         "*://194.71.107.80/*",
         "*://8la2.com/*",
