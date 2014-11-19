@@ -3,15 +3,40 @@ var linkTarget
   , xAdjust
   , xhr1 = null
   , xhr2 = null
-  , isTPB;
+  , isTPB
+  , urls = self.options.urls
+  , KAT = false
+  , TPB = false
+  , toCompare
+  , doubleView;
 
-if(window.location.href.indexOf('kickass') !== -1) {
-  linkTarget = 'cellMainLink';
+
+for(var i = 0; i < urls.length; i++) {
+  toCompare = urls[i].substring(2, urls[i].length);
+  if(window.location.href.indexOf(toCompare) !== -1) {
+    if(i < 3) {
+      KAT = true;
+    } else {
+      TPB = true;
+    }
+    break;
+  }
+}
+
+if(KAT) {
+  linkTarget = $('a.cellMainLink');
   regex = /imdb\.com\\\/title\\\/(.*?)[\\\/\"]/i;
   xAdjust = 200;
   isTPB = false;
 } else {
-  linkTarget = 'detLink';
+  if($('a.detLink').length > 0) {
+    doubleView = true;
+    linkTarget = $('a.detLink');
+  } else {
+    doubleView = false;
+    linkTarget = $('table#searchResult tbody tr td:nth-child(2) a');
+  }
+
   regex = /imdb\.com\/title\/(.*?)[\/\"]/i;
   xAdjust = 0;
   isTPB = true;
@@ -145,12 +170,20 @@ $(".sextantClose").click(function () {
 });
 
 var showSextant = function(e) {
-  var ele = $(e.currentTarget).find('a.' + linkTarget);
-  var target = ele.attr('href');
-  var x = ele.offset().left;
-  var reference = ele.offset().top - $(document).scrollTop();
-  var y = ele.offset().top;
-  var name, match;
+  var ele, target, x, reference, y, name, match;
+
+  if(TPB && doubleView) {
+    ele = $(e.currentTarget).find('a.detLink');
+  } else if(TPB) {
+    ele = $(e.currentTarget).find('td:nth-child(2) a');
+  } else if(KAT) {
+    ele = $(e.currentTarget).find('a.cellMainLink');
+  }
+
+  target = ele.attr('href');
+  x = ele.offset().left;
+  reference = ele.offset().top - $(document).scrollTop();
+  y = ele.offset().top;
 
   if(xhr1 !== null) {
     xhr1.abort();
@@ -253,14 +286,14 @@ var hideSextant = function() {
   }
 };
 
-$("." + linkTarget).parents('tr').hoverIntent({
+linkTarget.parents('tr').hoverIntent({
   over: showSextant, // function = onMouseOver callback (REQUIRED)
   timeout: 300, // number = milliseconds delay before onMouseOut
   out: hideSextant // function = onMouseOut callback (REQUIRED)
 });
 
 function setup() {
-  $('.' + linkTarget).removeAttr('title');
+  linkTarget.removeAttr('title');
   $('body').append($('<div id="sextant" style="display: none;position:absolute;min-height:260px;padding:20px;background:white;border:1px solid #eee;-webkit-border-radius:10px;-moz-border-radius:10px;border-radius:10px;-webkit-box-shadow:0 0 10px rgba(0,0,0,0.69);-moz-box-shadow:0 0 10px rgba(0,0,0,0.69);box-shadow:0 0 10px rgba(0,0,0,0.69);z-index:100;left:50px;min-width:715px;">' +
       '<div id="sextantContent" style="display:none;">' +
         '<div style="float: left;max-width: 250px;margin-right: 20px; text-align: left;">' +

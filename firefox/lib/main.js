@@ -2,10 +2,10 @@
 var pageMod = require("sdk/page-mod");
 // Import the self API
 var self = require("sdk/self");
-
-pageMod.PageMod({
-  include: [
+var urls = [
   	"*.kickass.to",
+  	"*.kickass.so",
+  	"*.katproxy.com",
   	"*.thepiratebay.se",
 		"*.194.71.107.80",
 		"*.8la2.com",
@@ -158,10 +158,14 @@ pageMod.PageMod({
 		"*.www.thepiratebay.hk",
 		"*.www.thepiratebay2.se",
 		"*.zeroproxy.me"
-  ],
+  ];
+
+pageMod.PageMod({
+  include: urls,
   contentScriptFile: [self.data.url("jquery.min.js"), self.data.url("piratebay.js")],
   contentScriptOptions: {
     arrowImg: self.data.url("img/arrows.png"),
-    spinnerImg: self.data.url("img/spinner.gif")
+    spinnerImg: self.data.url("img/spinner.gif"),
+    urls: urls
   }
 });
