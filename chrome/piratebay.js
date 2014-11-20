@@ -3,10 +3,10 @@ var linkTarget
   , xAdjust
   , xhr1 = null
   , xhr2 = null
-  , isTPB
   , urls = chrome.runtime.getManifest().content_scripts[0].matches
   , KAT = false
   , TPB = false
+  , EXTRA = false
   , toCompare
   , doubleView;
 
@@ -16,6 +16,8 @@ for(var i = 0; i < urls.length; i++) {
   if(window.location.href.indexOf(toCompare) !== -1) {
     if(i < 3) {
       KAT = true;
+    } else if(i == 3) {
+      EXTRA = true;
     } else {
       TPB = true;
     }
@@ -25,10 +27,13 @@ for(var i = 0; i < urls.length; i++) {
 
 if(KAT) {
   linkTarget = $('a.cellMainLink');
-  regex = /imdb\.com\\\/title\\\/(.*?)[\\\/\"]/i;
+  regex = /imdb\.com\\\/title\\\/(.*?)[\<\\\/\"]/i;
   xAdjust = 200;
-  isTPB = false;
-} else {
+} else if(EXTRA) {
+  linkTarget = $('table.tl tbody tr td:nth-child(2) a:first-child');
+  regex = /imdb\.com\/title\/(.*?)[\<\/\"]/i;
+  xAdjust = -950;
+} else if(TPB) {
   if($('a.detLink').length > 0) {
     doubleView = true;
     linkTarget = $('a.detLink');
@@ -37,9 +42,8 @@ if(KAT) {
     linkTarget = $('table#searchResult tbody tr td:nth-child(2) a');
   }
 
-  regex = /imdb\.com\/title\/(.*?)[\/\"]/i;
+  regex = /imdb\.com\/title\/(.*?)[\<\/\"]/i;
   xAdjust = 0;
-  isTPB = true;
 }
 
 /*!
@@ -179,6 +183,8 @@ var showSextant = function(e) {
     ele = $(e.currentTarget).find('td:nth-child(2) a');
   } else if(KAT) {
     ele = $(e.currentTarget).find('a.cellMainLink');
+  } else if(EXTRA) {
+    ele = $(e.currentTarget).find('td:nth-child(2) a:first-child');
   }
 
   target = ele.attr('href');
@@ -198,11 +204,7 @@ var showSextant = function(e) {
     url: target,
     dataType: 'html',
     success: function(page) {
-      if(isTPB) {
-        match = page.match(regex);
-      } else {
-        match = page.match(regex);
-      }
+      match = page.match(regex);
 
       if(match !== null && match.length && match[1] != '') {
         $('#sextantSpinner').show();
@@ -212,18 +214,19 @@ var showSextant = function(e) {
         // sextant height plus padding and arrow
         var sextantHeight = $("#sextant").height() + 25 + 40;
 
+        console.log(ele.offset());
         x = x - 100 + xAdjust;
 
         if (sextantHeight > reference) {
           y = y + 40;
-          $("#sextant").css("left", x).css("top", y);
+          $("#sextant").css("left", x + 'px').css("top", y + 'px').css('bottom', 'auto');
           $(".sextant-arrow").css({
             "background-position": "-60px top",
             "top": "-27px"
           });
         } else {
-          y = y - sextantHeight;
-          $("#sextant").css("left", x).css("top", y);
+          y = $(window).height() - y + 20;
+          $("#sextant").css("left", x + 'px').css("bottom", y + 'px').css('top', 'auto');
           $(".sextant-arrow").css({
             "background-position": "left top",
             "top": "auto",
