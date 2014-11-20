@@ -28,11 +28,11 @@ for(var i = 0; i < urls.length; i++) {
 if(KAT) {
   linkTarget = $('a.cellMainLink');
   regex = /imdb\.com\\\/title\\\/(.*?)[\<\\\/\"]/i;
-  xAdjust = 200;
+  xAdjust = function() { return 200; };
 } else if(EXTRA) {
   linkTarget = $('table.tl tbody tr td:nth-child(2) a:first-child');
   regex = /imdb\.com\/title\/(.*?)[\<\/\"]/i;
-  xAdjust = -950;
+  xAdjust = function() { return -$(window).width() + 722; };
 } else if(TPB) {
   if($('a.detLink').length > 0) {
     doubleView = true;
@@ -43,7 +43,7 @@ if(KAT) {
   }
 
   regex = /imdb\.com\/title\/(.*?)[\<\/\"]/i;
-  xAdjust = 0;
+  xAdjust = function() { return 0; };
 }
 
 /*!
@@ -214,8 +214,7 @@ var showSextant = function(e) {
         // sextant height plus padding and arrow
         var sextantHeight = $("#sextant").height() + 25 + 40;
 
-        console.log(ele.offset());
-        x = x - 100 + xAdjust;
+        x = x - 100 + xAdjust();
 
         if (sextantHeight > reference) {
           y = y + 40;
