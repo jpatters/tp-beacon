@@ -254,9 +254,14 @@ var showSextant = function(e) {
           }
 
           if(response.trailer !== null) {
-            $('#sextantMedia').html(response.trailer);
+            youtube = response.trailer.match(/src=\"(.*?)\"/i);
+            width = response.trailer.match(/width=\"(.*?)\"/i);
+            height = response.trailer.match(/height=\"(.*?)\"/i);
+            iframe = $('<iframe />').attr('height', height[1]).attr('width', width[1]).attr('frameborder', '0').attr('allowfullscreen', true).attr('src', youtube[1]);
+            $('#sextantMedia').append(iframe);
           } else {
-            $('#sextantMedia').html('<img height="250" src="https://api.jpatterson.me/beacon/movie/poster/' + encodeURIComponent(response.id) + '" />');
+            img = $('<img />').attr('height', '250').attr('src', 'https://api.jpatterson.me/beacon/movie/poster/' + encodeURIComponent(response.id))
+            $('#sextantMedia').append(img);
           }
 
           $('#sextantContent').show();
