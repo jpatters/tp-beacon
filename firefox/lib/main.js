@@ -163,6 +163,64 @@ var urls = [
 		"*.zeroproxy.me"
   ];
 
+var buttons = require('sdk/ui/button/action');
+var ss = require("sdk/simple-storage");
+var button = null;
+
+if(ss.storage.enabled === undefined || (ss.storage.enabled !== undefined && ss.storage.enabled)) {
+	button = buttons.ActionButton({
+	  id: "tp-beacon",
+	  label: "TP Beacon: On",
+	  icon: {
+	    "16": "./icons/beacon-16.png",
+	    "32": "./icons/beacon-32.png",
+	    "64": "./icons/beacon-64.png"
+	  },
+	  onClick: handleClick
+	});
+} else {
+	button = buttons.ActionButton({
+	  id: "tp-beacon",
+	  label: "TP Beacon: Off",
+	  icon: {
+	    "16": "./icons/beacon-16-bw.png",
+	    "32": "./icons/beacon-32-bw.png",
+	    "64": "./icons/beacon-64-bw.png"
+	  },
+	  onClick: handleClick
+	});
+}
+
+var topWorker = null;
+
+function handleClick(state) {
+	if(state.label == 'TP Beacon: On') {
+		button.state("window", {
+			"icon": {
+		    "16": "./icons/beacon-16-bw.png",
+		    "32": "./icons/beacon-32-bw.png",
+		    "64": "./icons/beacon-64-bw.png"
+		  },
+		  label: "TP Beacon: Off"
+	  });
+	  ss.storage.enabled = false;
+	} else {
+		button.state("window", {
+			"icon": {
+		    "16": "./icons/beacon-16.png",
+		    "32": "./icons/beacon-32.png",
+		    "64": "./icons/beacon-64.png"
+		  },
+		  label: "TP Beacon: On"
+	  });
+	  ss.storage.enabled = true;
+	}
+
+	if(topWorker !== null) {
+		topWorker.port.emit("tpb-toggle", button.state('window').label == 'TP Beacon: On');
+	}
+}
+
 pageMod.PageMod({
   include: urls,
   contentScriptFile: [self.data.url("jquery.min.js"), self.data.url("piratebay.js")],
@@ -170,5 +228,9 @@ pageMod.PageMod({
     arrowImg: self.data.url("img/arrows.png"),
     spinnerImg: self.data.url("img/spinner.gif"),
     urls: urls
+  },
+  onAttach: function(worker) {
+  	topWorker = worker;
+    topWorker.port.emit("tpb-toggle", button.state('window').label == 'TP Beacon: On');
   }
 });

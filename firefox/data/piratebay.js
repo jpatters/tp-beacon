@@ -293,10 +293,18 @@ var hideSextant = function() {
   }
 };
 
-linkTarget.parents('tr').hoverIntent({
-  over: showSextant, // function = onMouseOver callback (REQUIRED)
-  timeout: 300, // number = milliseconds delay before onMouseOut
-  out: hideSextant // function = onMouseOut callback (REQUIRED)
+self.port.on('tpb-toggle', function(enabled) {
+  if(enabled) {
+    linkTarget.parents('tr').hoverIntent({
+      over: showSextant, // function = onMouseOver callback (REQUIRED)
+      timeout: 300, // number = milliseconds delay before onMouseOut
+      out: hideSextant // function = onMouseOut callback (REQUIRED)
+    });
+  } else {
+    linkTarget.parents('tr').unbind("mouseenter").unbind("mouseleave");
+    linkTarget.parents('tr').removeProp('hoverIntent_t');
+    linkTarget.parents('tr').removeProp('hoverIntent_s');
+  }
 });
 
 function setup() {

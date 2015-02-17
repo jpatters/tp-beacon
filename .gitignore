@@ -3,3 +3,6 @@
 *.nex
 *.crx
 *.xpi
+*.rdf
+build/
+Cakefile
